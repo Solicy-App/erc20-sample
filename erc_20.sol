@@ -41,11 +41,22 @@ contract SolicyCoinERC20 is ERC20 {
     }
 
     function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
-        require(!blackList[recipient], "some message");
-        transferFrom(_msgSender(), recipient, amount);
+        require(!blackList[recipient], "The address you are trying to transfer is blocked");
+        _transfer(_msgSender(), recipient, amount);
         return true;
     }
 
+    function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
+        require(!blackList[recipient], "The address you are trying to transfer is blocked");
+
+        _transfer(sender, recipient, amount);
+
+        uint256 currentAllowance = allowance(sender, _msgSender());
+        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
+        _approve(sender, _msgSender(), currentAllowance - amount);
+
+        return true;
+    }
 
     function setFee(uint8 fee) public onlyOwner {
         _fee = fee;
