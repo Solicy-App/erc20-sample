@@ -4,7 +4,6 @@ pragma solidity >=0.7.0 <0.9.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "hardhat/console.sol";
 
-
 contract SolicyCoinERC20 is ERC20 {
     mapping(address => bool) blackList;
     uint8 _fee;
@@ -22,7 +21,7 @@ contract SolicyCoinERC20 is ERC20 {
     }
 
     modifier tockenOwner (address user) {
-        require(msg.sender == user);
+        require(msg.sender == user, "Only wallet owner can burn it's tokens");
         _;
     }
 
@@ -34,8 +33,9 @@ contract SolicyCoinERC20 is ERC20 {
         delete blackList[user];
     }
 
-    function burn(address account, uint256 amount) external virtual tockenOwner(account) {
+    function burn(address account, uint256 amount) external virtual tockenOwner(account) returns (bool) {
         _burn(account, amount);
+        return true;
     }
 
     function mint() pure public {
@@ -44,20 +44,12 @@ contract SolicyCoinERC20 is ERC20 {
 
     function transfer(address recipient, uint256 amount) public virtual override returns (bool) {
         require(!blackList[recipient], "The address you are trying to transfer is blocked");
-        _transfer(_msgSender(), recipient, amount);
-        return true;
+        return ERC20.transfer(recipient, amount);
     }
 
     function transferFrom(address sender, address recipient, uint256 amount) public virtual override returns (bool) {
         require(!blackList[recipient], "The address you are trying to transfer is blocked");
-
-        _transfer(sender, recipient, amount);
-
-        uint256 currentAllowance = allowance(sender, _msgSender());
-        require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
-        _approve(sender, _msgSender(), currentAllowance - amount);
-
-        return true;
+        return ERC20.transferFrom(sender, recipient, amount);
     }
 
     function setFee(uint8 fee) public onlyOwner {
