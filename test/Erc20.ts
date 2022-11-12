@@ -12,7 +12,6 @@ describe("ERC20", function () {
     let tempAccount_1: any;
 
     beforeEach(async () => {
-
         const SolicyCoinERC20 = await ethers.getContractFactory("SolicyCoinERC20");
         erc20 = await SolicyCoinERC20.deploy(5);
         tempAccount_1 = account.create();
@@ -36,11 +35,9 @@ describe("ERC20", function () {
             expect(await erc20.totalSupply()).to.equal(10 ** 10); 
         });
         it ("The Mint functional is blocked for everyone", async () => {
-            try {
-                await erc20.mint();
-            } catch (error: any) {
-                expect(error.errorArgs[0]).to.equal("Mint action blocked in this contract");
-            };
+
+            await expect(erc20.mint()).to.be.rejectedWith("Mint action blocked in this contract")
+
         });
     });
 

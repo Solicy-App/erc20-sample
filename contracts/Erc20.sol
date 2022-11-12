@@ -20,10 +20,10 @@ contract SolicyCoinERC20 is ERC20 {
         _;
     }
 
-    modifier tockenOwner (address user) {
-        require(msg.sender == user, "Only wallet owner can burn it's tokens");
-        _;
-    }
+    // modifier tockenOwner (address user) {
+    //     require(msg.sender == user, "Only wallet owner can burn it's tokens");
+    //     _;
+    // }
 
     function addToBlackList(address user) external {
         blackList[user] = true;
